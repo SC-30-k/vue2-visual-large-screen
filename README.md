@@ -1,24 +1,23 @@
-# vue2-visual-large-screen
+# 基于vue可视化项目大屏
+# project name：基于全国院校的可视化大屏
+# @Author：黄壁帆、陈大义、吴佳权
+# @Date：2022年9月2日09:06:52
 
-## Project setup
-```
-npm install
-```
+### 技术栈
+### 前端：vue  echart element-ui 
+### 配置：WebPack
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+# 数据获取：axios
+# 数据接口：http://124.71.103.98:8091/ 
+# 注：获取相应的数据需带参数
 
-### Compiles and minifies for production
-```
+
+```bash
+# 安装依赖
+npm install 
+# 运行项目
+npm run dev
+# 项目打包
 npm run build
 ```
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
