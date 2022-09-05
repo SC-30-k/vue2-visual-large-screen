@@ -9,7 +9,7 @@ import { Message } from 'element-ui';
 // 创建axios实例 
 const baseAxios  = axios.create()
 
-baseAxios.defaults.baseURL = "http://124.71.103.98:8091"
+baseAxios.defaults.baseURL = "http://124.71.103.98:8091"    // 请求的接口
 baseAxios.defaults.timeout = 5000;    // 设置请求时间(5s)
 baseAxios.defaults.withCredentials = true; // 跨域请求时，是否需要使用凭证,登录检验
 baseAxios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'; // post请求头
