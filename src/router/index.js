@@ -5,8 +5,8 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path:"/",
-    component:() => import("@/views/test")
+    path: "/",
+    component: () => import("@/views/nationwide")
   }
 ]
 
