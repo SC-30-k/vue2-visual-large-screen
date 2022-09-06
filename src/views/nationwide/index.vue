@@ -50,6 +50,21 @@
             <div class="block-top">
               <div class="top-title">师资建设</div>
             </div>
+            <div class="left-bottom-t">
+              <div class="left-bottom-t-item">
+                <!-- 教师人均企业实践时间走势图 -->
+                <div class="left-bottom-main-t-item-echarts">
+                  <div class="echart-canvas" ref="timeTrend"></div>
+                </div>
+              </div>
+              <div class="left-bottom-t-item">
+                <!-- 企业兼职教师课时占比图 -->
+                <div class="left-bottom-main-t-item-echarts">
+                  <div class="echart-canvas" ref="partTimePeriods"></div>
+                </div>
+              </div>
+            </div>
+            <div class="left-bottom-b"></div>
           </dv-border-box-7>
         </div>
       </div>
@@ -112,6 +127,20 @@
           <dv-border-box-7 :color="['#0154be', '#03f7fc']">
             <div class="block-top">
               <div class="top-title">人才培养</div>
+            </div>
+            <div class="right-top-main">
+              <div class="right-top-main-t">
+                <div class="right-main-item-l"></div>
+                <div class="right-main-item-r"></div>
+              </div>
+              <div class="right-top-main-c">
+                <div class="right-main-item-l"></div>
+                <div class="right-main-item-r"></div>
+              </div>
+              <div class="right-top-main-b">
+                <div class="right-main-item-l"></div>
+                <div class="right-main-item-r"></div>
+              </div>
             </div>
           </dv-border-box-7>
         </div>
@@ -190,6 +219,34 @@ export default {
         type: "bar",
         data: { d1: data.teacherFundsBuild },
       });
+      // 教师人均企业实践时间走势
+      this.initLineOrBarChart({
+        chartName: "timeTrend",
+        data: {
+          d1: data.teacherBuildTime,
+        },
+        title: "教师人均企业实践时间走势",
+        color: [
+          "rgba(0, 187, 255, 1)",
+          "rgba(0, 187, 255, 0.3)",
+          "rgba(0, 187, 255, 0.9)",
+        ],
+        unit: "(天)",
+      });
+      // 企业兼职教师课时占比
+      this.initLineOrBarChart({
+        chartName: "partTimePeriods",
+        title: "企业兼职教师课时占比",
+        data: {
+          d1: data.teacherBuildClazz,
+        },
+        color: [
+          "rgba(27, 198, 97, 1)",
+          "rgba(27, 198, 97, 0.3)",
+          "rgba(27, 198, 97, 0.9)",
+        ],
+        unit: "(%)",
+      });
       // 实践基地设置
       this.initStackBarChart({
         chartName: "practiceBase",
@@ -201,6 +258,20 @@ export default {
         name1: "校内实践基地",
         name2: "校外实训基地",
         unit: "(万个)",
+      });
+      //技能鉴定机构设置
+      this.initDoubleLineOrBarChart({
+        chartName: "skill",
+        type: "bar",
+        data: {
+          d1: data.skil,
+          d2: data.skilStudent,
+        },
+        // grid: {},
+        yAxisNamePd: [-20, -40, 0, 0],
+        yName1: "鉴定机构数量(个)",
+        yName2: "鉴定学生数量(万人)",
+        title: "技能鉴定机构设置",
       });
     },
     // 柱状图 and 折线图结合
@@ -265,7 +336,7 @@ export default {
             show: true,
             fontFamily: "Microsoft YaHei",
             fontWeight: "normal",
-            fontSize: 9,
+            fontSize: 10,
             color: "rgba(64, 143, 255, 1)",
             fontStyle: "normal",
             textDecoration: "none",
@@ -431,7 +502,7 @@ export default {
       };
       chart.setOption(option);
     },
-    // 柱状图/线图
+    // 柱状图 or 线图
     initLineOrBarChart(params) {
       let chart = this.$echarts.init(this.$refs[params.chartName]);
       const option = {
@@ -460,7 +531,7 @@ export default {
             show: true,
             fontFamily: "Microsoft YaHei",
             fontWeight: "normal",
-            fontSize: 9,
+            fontSize: 10,
             color: "rgba(64, 143, 255, 1)",
             fontStyle: "normal",
             textDecoration: "none",
@@ -537,13 +608,45 @@ export default {
         ];
       } else {
         option.series = [
-          // {
-          //   type: "line",
-          //   data: params.data.d1,
-          //   symbol: "circle",
-          //   symbolSize: 5,
-          //   yAxisIndex: 0,
-          // },
+          {
+            type: "line",
+            data: params.data.d1,
+            symbol: "circle",
+            symbolSize: 5,
+            yAxisIndex: 0,
+            itemStyle: {
+              color: params.color[0],
+              color: "rgba(0, 187, 255, 1)",
+              borderColor: "#fff",
+              borderWidth: 2,
+            },
+            lineStyle: {
+              width: 1,
+            },
+            areaStyle: {
+              normal: {
+                color: this.$echarts.graphic.LinearGradient(
+                  0,
+                  0,
+                  0,
+                  1,
+                  [
+                    {
+                      offset: 0,
+                      color: params.color[1],
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(0,202,149,0)",
+                    },
+                  ],
+                  false
+                ),
+                shadowColor: params.color[2],
+                shadowBlur: 20,
+              },
+            },
+          },
         ];
       }
       chart.setOption(option);
@@ -605,7 +708,7 @@ export default {
             },
           },
           axisLabel: {
-            fontSize: 9,
+            fontSize: 10,
           },
           axisTick: {
             show: false,
@@ -675,6 +778,166 @@ export default {
       };
       chart.setOption(option);
     },
+    // 双柱图 or 双折线图
+    initDoubleLineOrBarChart(params) {
+      let chart = this.$echarts.init(this.$refs[params.chartName]);
+      const option = {
+        title: {
+          text: params.title,
+          textStyle: {
+            color: "#03f7fc",
+            fontSize: 14,
+          },
+        },
+        grid: params.grid
+          ? params.grid
+          : {
+              left: 30,
+              right: 30,
+              bottom: 20,
+              top: 50,
+              height: "60%",
+            },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "cross",
+          },
+        },
+        xAxis: {
+          type: "category",
+          data: this.$store.state.years,
+          axisLine: {
+            show: true,
+            lineStyle: {
+              type: "solid",
+              width: 1,
+              color: "rgba(64, 143, 255, 1)",
+            },
+          },
+          axisLabel: {
+            fontSize: 10,
+          },
+          axisTick: {
+            show: false,
+          },
+          splitLine: {
+            show: false,
+          },
+          splitArea: {
+            show: false,
+          },
+        },
+        yAxis: [
+          {
+            type: "value",
+            name: params.yName1,
+            splitNumber: 3,
+            nameTextStyle: {
+              fontFamily: "Microsoft YaHei",
+              fontWeight: "normal",
+              fontSize: 10,
+              color: "rgba(64, 143, 255, 1)",
+              fontStyle: "normal",
+              textDecoration: "none",
+              padding: params.yAxisNamePd
+                ? params.yAxisNamePd
+                : [-20, 30, 0, 0],
+            },
+            axisLine: {
+              show: false,
+            },
+            axisTick: {
+              show: false,
+            },
+            axisLabel: {
+              rotate: "0",
+              show: true,
+              fontFamily: "Microsoft YaHei",
+              fontWeight: "normal",
+              fontSize: 10,
+              color: "rgba(64, 143, 255, 1)",
+              fontStyle: "normal",
+              textDecoration: "none",
+              margin: 4,
+            },
+            axisLine: {
+              show: false,
+            },
+            splitLine: {
+              show: true,
+              lineStyle: {
+                type: "solid",
+                width: 1,
+                color: "rgba(1, 58, 107, 1)",
+              },
+            },
+            splitArea: {
+              show: false,
+            },
+          },
+          {
+            type: "value",
+            name: params.yName2,
+            splitNumber: 4,
+            axisTick: {
+              show: false,
+            },
+            nameTextStyle: {
+              fontFamily: "Microsoft YaHei",
+              fontWeight: "normal",
+              fontSize: 10,
+              color: "rgba(1, 211, 142, 1)",
+              fontStyle: "normal",
+              textDecoration: "none",
+              padding: [20, 30, 0, 0],
+            },
+            axisLabel: {
+              rotate: "0",
+              show: true,
+              fontFamily: "Microsoft YaHei",
+              fontWeight: "normal",
+              fontSize: 10,
+              color: "rgba(1, 211, 142, 1)",
+              fontStyle: "normal",
+              textDecoration: "none",
+              margin: 4,
+            },
+            axisLine: {
+              show: false,
+            },
+            splitLine: {
+              show: true,
+              lineStyle: {
+                type: "solid",
+                width: 1,
+                color: "rgba(1, 58, 107, 1)",
+              },
+            },
+            splitArea: {
+              show: false,
+            },
+          },
+        ],
+      };
+      if (params.type == "bar") {
+        option.series = [
+          {
+            type: "bar",
+            yAxisIndex: 0,
+            barWidth: 7,
+            data: params.data.d1,
+          },
+          {
+            type: "bar",
+            yAxisIndex: 1,
+            barWidth: 7,
+            data: params.data.d2,
+          },
+        ];
+      }
+      chart.setOption(option);
+    },
   },
 };
 </script>
@@ -722,7 +985,7 @@ export default {
           .left-top-main-b-item {
             margin-top: 1.85vh;
             .left-top-main-b-item-echarts {
-              height: 17.33vh;
+              height: 18.33vh;
               width: 11.77vw;
               // background: rgb(218, 33, 33);
             }
@@ -736,6 +999,21 @@ export default {
       position: relative;
       top: 2%;
       // background: rgba(1, 84, 190, 0.12);
+      .left-bottom-t {
+        margin-top: 1.67vh;
+        flex-basis: 100%;
+        display: flex;
+        justify-content: space-around;
+        .left-bottom-t-item {
+          .left-bottom-main-t-item-echarts {
+            height: 17.56vh;
+            width: 11.98vw;
+            // background-color: #fff;
+          }
+        }
+      }
+      .left-bottom-b {
+      }
     }
   }
   .center {
@@ -804,6 +1082,44 @@ export default {
       padding-bottom: 1.2vh;
       height: 60vh;
       width: 28.9vw;
+      .right-top-main {
+        .right-top-main-t {
+          padding: 0 0.94vw;
+          margin-top: 1.67vh;
+          flex-basis: 100%;
+          display: flex;
+          justify-content: space-around;
+          height: 14.96vh;
+          // border: #ffc000 1px solid;
+        }
+        .right-top-main-c {
+          padding: 0 0.94vw;
+          margin-top: 2.63vh;
+          flex-basis: 100%;
+          display: flex;
+          justify-content: space-around;
+          height: 16.11vh;
+        }
+        .right-top-main-b {
+          // border: #ffc000 1px solid;
+          padding: 0 0.94vw;
+          margin-top: 1.94vh;
+          flex-basis: 100%;
+          display: flex;
+          justify-content: space-around;
+          height: 15.3vh;
+        }
+        .right-main-item-l {
+          width: 13.02vw;
+          height: 100%;
+          border: #ffc000 1px solid;
+        }
+        .right-main-item-r {
+          width: 13.02vw;
+          margin-left: 2.08vw;
+          border: #ffc000 1px solid;
+        }
+      }
     }
     .right-bottom {
       position: relative;
@@ -820,14 +1136,14 @@ export default {
         height: 20.85vh;
         // background: #000;
         .right-bottom-main-l {
-          margin-left: 0.73vw;
+          // margin-left: 0.23vw;
           width: 12.02vw;
           // height: 17.85vh;
           // border: #ffc000 1px solid;
         }
         .right-bottom-main-r {
           width: 12.02vw;
-          margin-left: 1.08vw;
+          // margin-left: 0.48vw;
           // border: #ffc000 1px solid;
         }
       }
