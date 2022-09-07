@@ -64,7 +64,13 @@
                 </div>
               </div>
             </div>
-            <div class="left-bottom-b"></div>
+            <div class="left-bottom-b">
+              <div class="left-bottom-b-item">
+                <div class="left-bottom-b-item-echarts">
+                  <div class="echart-canvas" ref="liquidfill"></div>
+                </div>
+              </div>
+            </div>
           </dv-border-box-7>
         </div>
       </div>
@@ -130,16 +136,37 @@
             </div>
             <div class="right-top-main">
               <div class="right-top-main-t">
-                <div class="right-main-item-l"></div>
-                <div class="right-main-item-r"></div>
+                <!-- 报考高职原因分析图 -->
+                <div class="right-main-item-l">
+                  <div class="echart-canvas" ref="vocational"></div>
+                </div>
+                <!-- 中高贯通培养比例图 -->
+                <div class="right-main-item-r">
+                  <div class="echart-canvas" ref="bl"></div>
+                </div>
               </div>
               <div class="right-top-main-c">
-                <div class="right-main-item-l"></div>
-                <div class="right-main-item-r"></div>
+                <!-- 职业资格证书获取情况图 -->
+                <div class="right-main-item-l">
+                  <div
+                    class="echart-canvas"
+                    ref="professionalCertificate"
+                  ></div>
+                </div>
+                <!-- 国家级技能竞赛获奖情况图 -->
+                <div class="right-main-item-r">
+                  <div class="echart-canvas" ref="national"></div>
+                </div>
               </div>
               <div class="right-top-main-b">
-                <div class="right-main-item-l"></div>
-                <div class="right-main-item-r"></div>
+                <!-- 就业对口情况图 -->
+                <div class="right-main-item-l">
+                  <div class="echart-canvas" ref="employmentCounterpart"></div>
+                </div>
+                <!-- 就业去向区域排名图 -->
+                <div class="right-main-item-r">
+                  <div class="echart-canvas" ref="employmentNum"></div>
+                </div>
               </div>
             </div>
           </dv-border-box-7>
@@ -211,6 +238,12 @@ export default {
         name2: "财政专项投入",
         unit: "(万元)",
       });
+      // 专业大类调整排行
+      this.initCompositeBarChart({
+        chartName: "bigCategory",
+        title: "专业大类调整排行",
+        data: data.majorBigNew,
+      });
       // 师资经费投入情况
       this.initLineOrBarChart({
         chartName: "facultyFunding",
@@ -246,6 +279,111 @@ export default {
           "rgba(27, 198, 97, 0.9)",
         ],
         unit: "(%)",
+      });
+      // 水球
+      this.initLiquidfill({
+        chartName: "liquidfill",
+        data: {
+          d1: [
+            data.positionProportion.gthen,
+            data.positionProportion.bthen,
+            data.positionProportion.sthen,
+            data.positionProportion.qthen,
+            data.positionProportion.jthen,
+          ],
+          subtitle: [
+            data.positionProportion.gman,
+            data.positionProportion.bman,
+            data.positionProportion.sman,
+            data.positionProportion.qman,
+            data.positionProportion.jman,
+          ],
+        },
+        title: [
+          "高级职称教师",
+          "博士学历教师",
+          "双师型教师",
+          "企业兼职教师",
+          "教学名师",
+        ],
+        position: [["6%"], ["23%"], ["center"], ["63%"], ["85%"]],
+        center: [
+          ["13%", "30%"],
+          ["30%", "30%"],
+          ["50%", "30%"],
+          ["70%", "30%"],
+          ["90%", "30%"],
+        ],
+      });
+      // 报考高职原因分析
+      this.initRadarChart({
+        chartName: "vocational",
+        title: "报考高职原因分析",
+        data: data.vocational,
+      });
+      //中高贯通培养比例
+      this.initBarAndPieChart({
+        chartName: "bl",
+        title: "中高贯通培养比例",
+        data: data.bl,
+      });
+      // 职业资格证书获取情况
+      this.initDoubleLineOrBarChart({
+        chartName: "professionalCertificate",
+        title: "职业资格证书获取情况",
+        yName1: "(万人)",
+        data: {
+          d1: data.professionalQualificationCertificate,
+        },
+        type: "bar",
+        grid: {
+          left: 40,
+          right: 10,
+          bottom: 30,
+          top: 43,
+          height: "60%",
+          width: "70%",
+        },
+      });
+      // 国家级技能竞赛获奖情况
+      this.initBarTypeChart({
+        chartName: "national",
+        title: "国家级技能竞赛获奖情况",
+        xAxisName: "(万人)",
+        data: {
+          d1: data.national,
+        },
+      });
+      // 就业对口情况
+      this.initDoubleLineOrBarChart({
+        chartName: "employmentCounterpart",
+        title: "就业对口情况",
+        yName1: "(%)",
+        legendShow: true,
+        data: {
+          d1: data.employment,
+          d2: data.match,
+        },
+        seriesName1: "就业率",
+        seriesName2: "对口率",
+        grid: {
+          left: 40,
+          right: 10,
+          bottom: 30,
+          top: 43,
+          height: "60%",
+          width: "70%",
+        },
+      });
+      // 就业去向区域排名
+      this.initBarTypeChart({
+        chartName: "employmentNum",
+        title: "就业去向区域排名",
+        xAxisName: "(万人)",
+        data: {
+          d1: data.totalEmployment,
+          d2: data.employmentRegion,
+        },
       });
       // 实践基地设置
       this.initStackBarChart({
@@ -789,6 +927,19 @@ export default {
             fontSize: 14,
           },
         },
+        legend: {
+          show: params.legendShow,
+          // icon: "rect",
+          orient: "vertical",
+          right: "10%",
+          // top: '%',
+          itemWidth: 11,
+          itemHeight: 2,
+          textStyle: {
+            fontSize: 10,
+            color: "#fff",
+          },
+        },
         grid: params.grid
           ? params.grid
           : {
@@ -831,7 +982,7 @@ export default {
         yAxis: [
           {
             type: "value",
-            name: params.yName1,
+            name: params.yName1 ? params.yName1 : "",
             splitNumber: 3,
             nameTextStyle: {
               fontFamily: "Microsoft YaHei",
@@ -878,7 +1029,7 @@ export default {
           },
           {
             type: "value",
-            name: params.yName2,
+            name: params.yName2 ? params.yName2 : "",
             splitNumber: 4,
             axisTick: {
               show: false,
@@ -933,6 +1084,804 @@ export default {
             yAxisIndex: 1,
             barWidth: 7,
             data: params.data.d2,
+          },
+        ];
+      } else {
+        option.series = [
+          {
+            type: "line",
+            name: params.seriesName1 ? params.seriesName1 : "",
+            data: params.data.d1,
+            type: "line",
+            symbol: "circle",
+            symbolSize: 5,
+            yAxisIndex: 0,
+            itemStyle: {
+              color: "rgba(1, 211, 142, 1)",
+              borderColor: "#fff",
+              borderWidth: 2,
+            },
+            lineStyle: {
+              width: 1,
+            },
+            areaStyle: {
+              normal: {
+                color: this.$echarts.graphic.LinearGradient(
+                  0,
+                  0,
+                  0,
+                  1,
+                  [
+                    {
+                      offset: 0,
+                      color: "rgba(1, 211, 142, 0.3)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(0,202,149,0)",
+                    },
+                  ],
+                  false
+                ),
+                shadowColor: "rgba(1, 211, 142, 0.9)",
+                shadowBlur: 20,
+              },
+            },
+          },
+          {
+            type: "line",
+            name: params.seriesName2 ? params.seriesName2 : "",
+            data: params.data.d2,
+            symbol: "circle",
+            symbolSize: 5,
+            yAxisIndex: 0,
+            itemStyle: {
+              color: "rgba(0, 187, 255, 1)",
+              borderColor: "#fff",
+              borderWidth: 2,
+            },
+            lineStyle: {
+              width: 1,
+            },
+            areaStyle: {
+              normal: {
+                color: this.$echarts.graphic.LinearGradient(
+                  0,
+                  0,
+                  0,
+                  1,
+                  [
+                    {
+                      offset: 0,
+                      color: "rgba(0, 187, 255, 0.3)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(0,202,149,0)",
+                    },
+                  ],
+                  false
+                ),
+                shadowColor: "rgba(0, 187, 255, 0.9)",
+                shadowBlur: 20,
+              },
+            },
+          },
+        ];
+      }
+      chart.setOption(option);
+    },
+    // 水球图
+    initLiquidfill(params) {
+      // console.log(params.data.d1[1]);
+      // const data = [parseFloat(params.data.d1[i].replace("%", "")) / 100];
+      let chart = this.$echarts.init(this.$refs[params.chartName]);
+      const option = {
+        title: [],
+        xAxis: {
+          show: false,
+        },
+        yAxis: {
+          show: false,
+        },
+        series: [],
+      };
+      for (let i = 0; i < 5; i++) {
+        option.title.push({
+          text: params.title[i],
+          textStyle: {
+            color: "white",
+            fontSize: 11,
+          },
+          left: params.position[i][0],
+          top: "60%",
+          subtext: params.data.subtitle[i] + "人",
+          subtextStyle: {
+            color: "#f39800",
+            fontSize: 15,
+          },
+        });
+        option.series.push(
+          {
+            type: "liquidFill",
+            data: [parseFloat(params.data.d1[i].replace("%", "")) / 100],
+            radius: "45%",
+            center: params.center[i],
+            outline: {
+              show: false,
+            },
+            color: [
+              {
+                colorStops: [
+                  {
+                    //填充区渐变色
+                    offset: 0,
+                    color: "#8E6AF4",
+                  },
+                  {
+                    offset: 1,
+                    color: "#2A3DB3",
+                  },
+                ],
+              },
+            ],
+            label: {
+              fontSize: 18,
+            },
+            backgroundStyle: {
+              color: "rgb(255,255, 255, 0)",
+            },
+          },
+          {
+            name: "小环",
+            type: "gauge",
+            splitNumber: 15,
+            radius: "90%",
+            center: params.center[i],
+            startAngle: 90,
+            endAngle: -269.9999,
+            axisLine: {
+              show: false,
+            },
+            axisTick: {
+              show: true,
+              lineStyle: {
+                color: "#6959DC",
+                width: 1,
+              },
+              length: 3,
+              splitNumber: 5,
+            },
+            splitLine: {
+              show: false,
+            },
+            axisLabel: {
+              show: false,
+            },
+            detail: {
+              show: false,
+            },
+          }
+        );
+      }
+      chart.setOption(option);
+    },
+    // 雷达图
+    initRadarChart(params) {
+      let chart = this.$echarts.init(this.$refs[params.chartName]);
+      const preValue = [
+        params.data[0].xxpp,
+        params.data[0].trtj,
+        params.data[0].zyah,
+        params.data[0].jnpx,
+        params.data[0].dlwz,
+      ];
+      const twValue = [
+        params.data[1].xxpp,
+        params.data[1].trtj,
+        params.data[1].zyah,
+        params.data[1].jnpx,
+        params.data[1].dlwz,
+      ];
+      const option = {
+        title: {
+          text: params.title,
+          textStyle: {
+            color: "#03f7fc",
+            fontSize: 14,
+          },
+        },
+        tooltip: {
+          trigger: "item",
+          textStyle: {
+            color: "white",
+          },
+          backgroundColor: "rgba(50,50,50,0.5)",
+          borderColor: "rgba(0, 0, 0, 0)",
+        },
+        legend: {
+          show: true,
+          right: 30,
+          top: 20,
+          orient: "vertical",
+          itemWidth: 11,
+          itemHeight: 11,
+          textStyle: {
+            fontSize: 10,
+            color: "#fff",
+          },
+        },
+        radar: {
+          name: {
+            textStyle: {
+              color: "rgba(64, 143, 255, 1)",
+              // borderRadius: 3,
+              // padding: [3, 5]
+              fontSize: 12,
+            },
+          },
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: "rgba(64, 143, 255, 1)",
+              width: 0.5,
+            },
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              color: "rgba(64, 143, 255, 1)",
+              width: 0.5,
+            },
+          },
+          splitArea: {
+            show: false,
+          },
+          nameGap: 10,
+          indicator: [
+            { text: "学校品牌", max: 30 },
+            { text: "他人推荐", max: 30 },
+            { text: "专业爱好", max: 30 },
+            { text: "技能培养", max: 30 },
+            { text: "地理位置", max: 30 },
+          ],
+          center: ["48%", "60%"],
+          radius: "65%",
+        },
+        series: [
+          {
+            type: "radar",
+            areaStyle: {
+              opacity: 0.5,
+            },
+            data: [
+              {
+                value: preValue,
+                name: "历年平均",
+              },
+              {
+                value: twValue,
+                name: "2020年",
+              },
+            ],
+            color: ["rgba(19, 230, 237, 1)", "rgba(153, 127, 255, 1)"],
+          },
+        ],
+      };
+      chart.setOption(option);
+    },
+    // 柱饼图
+    initBarAndPieChart(params) {
+      let chart = this.$echarts.init(this.$refs[params.chartName]);
+      const option = {
+        title: [
+          {
+            text: params.title,
+            textStyle: {
+              color: "#03f7fc",
+              fontSize: 14,
+            },
+          },
+          {
+            text: params.title,
+            textStyle: {
+              color: "rgba(64, 143, 255, 1)",
+              fontSize: 11,
+            },
+            top: "85%",
+            left: "center",
+          },
+        ],
+        tooltip: {
+          trigger: "item",
+          formatter: "{c}%",
+        },
+        polar: {
+          radius: "100%",
+          center: ["50%", "50%"],
+        },
+        radiusAxis: {
+          nameLocation: "end",
+          nameGap: {
+            val: 15,
+            isPx: true,
+          },
+          axisLabel: {
+            show: false,
+          },
+          axisLine: {
+            show: false,
+          },
+          splitLine: {
+            show: false,
+          },
+          splitArea: {
+            show: false,
+          },
+          type: "category",
+          show: true,
+          axisTick: {
+            show: false,
+          },
+        },
+        angleAxis: {
+          axisLine: {
+            show: true,
+            lineStyle: {
+              type: "solid",
+              width: 1,
+              color: "#999",
+            },
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: "solid",
+              width: 1,
+              color: "#eeeeee",
+            },
+          },
+          splitArea: {
+            show: false,
+          },
+          max: 100,
+          show: false,
+        },
+        legend: {
+          show: false,
+        },
+        series: [
+          {
+            name: "",
+            type: "bar",
+            roundCap: true,
+            barWidth: 3,
+            showBackground: true,
+            backgroundColor: "rgba(76, 255, 208, 0.3)",
+            coordinateSystem: "polar",
+            itemStyle: {
+              color: "rgba(76, 255, 208, 1)",
+              barBorderRadius: 2,
+            },
+            label: {
+              show: false,
+              color: "#fff",
+            },
+            data: [params.data],
+          },
+          {
+            name: "",
+            type: "pie",
+            radius: ["40%", "45%"],
+            center: ["50%", "50%"],
+            avoidLabelOverlap: false,
+            hoverAnimation: false,
+            tooltip: {
+              show: false,
+            },
+            label: {
+              show: false,
+            },
+            emphasis: {
+              show: false,
+              label: {
+                show: true,
+                fontSize: "30",
+                fontWeight: "bold",
+              },
+            },
+            labelLine: {
+              show: false,
+            },
+            itemStyle: {
+              borderWidth: 0,
+              color: "rgba(21, 53, 60, 0.7)",
+            },
+            data: [
+              {
+                value: 1,
+                name: "",
+              },
+            ],
+          },
+          {
+            name: "",
+            type: "pie",
+            radius: ["30%", "35%"],
+            center: ["50%", "50%"],
+            avoidLabelOverlap: false,
+            hoverAnimation: false,
+            tooltip: {
+              show: false,
+            },
+            label: {
+              show: false,
+            },
+            emphasis: {
+              show: false,
+              label: {
+                show: true,
+                fontSize: "30",
+                fontWeight: "bold",
+              },
+            },
+            labelLine: {
+              show: false,
+            },
+            itemStyle: {
+              borderWidth: 0,
+              color: "rgba(21, 53, 60, 0.7)",
+            },
+            data: [
+              {
+                value: 1,
+                name: "",
+              },
+            ],
+          },
+        ],
+      };
+      option.title.push({
+        text: params.data + "%",
+        textStyle: {
+          color: "#ABE8F3",
+          fontSize: 15,
+        },
+        left: "center",
+        top: "42%",
+      });
+      chart.setOption(option);
+    },
+    // 条形图复合框
+    initCompositeBarChart(params) {
+      let nameArr = [];
+      let valueArr = [];
+      let borderArr = [];
+      for (let i = 0; i < params.data.length; i++) {
+        nameArr.push(params.data[i].name);
+        valueArr.push(parseInt(params.data[i].value));
+        borderArr.push(480);
+      }
+      let chart = this.$echarts.init(this.$refs[params.chartName]);
+      const option = {
+        title: {
+          text: params.title,
+          textStyle: {
+            color: "#03f7fc",
+            fontSize: 14,
+          },
+        },
+        grid: {
+          height: "85%",
+          top: "15%",
+          left: "0%",
+        },
+        xAxis: [
+          {
+            type: "value",
+            show: false,
+          },
+          {
+            type: "value",
+            show: false,
+          },
+        ],
+        dataZoom: [
+          {
+            width: 8,
+            orient: "vertical",
+            yAxisIndex: 0,
+            show: params.data.length > 3,
+            showDetail: false,
+            type: "slider",
+            startValue: 0,
+            endValue: 3,
+            borderColor: "rgba(0, 0, 0, 0)",
+            zoomLock: true,
+            right: 0,
+          },
+        ],
+        yAxis: {
+          type: "category",
+          inverse: true,
+          nameGap: 16,
+          axisLine: {
+            show: false,
+          },
+          axisLabel: {
+            show: false,
+          },
+          axisTick: {
+            show: false,
+          },
+        },
+        series: [
+          {
+            // 值
+            type: "bar",
+            barWidth: 10,
+            data: valueArr,
+            z: 2,
+            silent: true,
+            itemStyle: {
+              normal: {
+                // barBorderRadius: 16,
+                color: {
+                  type: "bar",
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "#314BCC", // 0% 处的颜色
+                    },
+                    {
+                      offset: 1,
+                      color: "#13F5FD", // 100% 处的颜色
+                    },
+                  ],
+                  globalCoord: false, // 缺省为 false
+                },
+              },
+            },
+            label: {
+              show: true,
+              position: [180, -20],
+              textStyle: {
+                color: "#DEDEDE",
+                fontSize: 13,
+                // lineHeight: -20,
+              },
+            },
+          },
+          {
+            //框
+            type: "bar",
+            name: "柱子",
+            data: borderArr,
+            itemStyle: {
+              borderColor: "#183F60",
+              borderWidth: 1,
+              // barBorderRadius: 15,
+              color: "rgba(102, 102, 102,0)",
+            },
+            z: 0,
+            barWidth: 20,
+          },
+          {
+            type: "bar",
+            data: params.data,
+            xAxisIndex: 1,
+            barGap: "-150%",
+            itemStyle: {
+              barBorderRadius: 0,
+              color: "transparent",
+            },
+            label: {
+              show: true,
+              position: [0, "-2"],
+              textStyle: {
+                fontSize: 13,
+                color: "#fff",
+                //   lineHeight: 0,
+              },
+              formatter: function (data) {
+                var result = `${data.dataIndex + 1}.`;
+                //   console.log(data);
+                result += data.name;
+                //   console.log(result);
+                return result;
+              },
+            },
+          },
+        ],
+      };
+      chart.setOption(option);
+    },
+    // 条形图
+    initBarTypeChart(params) {
+      console.log(params.data);
+      let nationalName = [];
+      let nationalValue = [];
+      params.data.d1.map((item) => {
+        nationalName.push(
+          item.name.replace(
+            /省|市|自治区|特别行政区|壮族自治区|维吾尔自治区|回族自治区/g,
+            ""
+          )
+        );
+        nationalValue.push(item.value);
+      });
+      console.log(nationalName);
+      console.log(nationalValue);
+      let chart = this.$echarts.init(this.$refs[params.chartName]);
+      const option = {
+        title: {
+          text: params.title,
+          textStyle: {
+            color: "#03f7fc",
+            fontSize: 14,
+          },
+          left: "0%",
+        },
+        dataZoom: [
+          {
+            width: 8,
+            orient: "vertical",
+            yAxisIndex: 0,
+            show: params.data.d1.length > 4,
+            showDetail: false,
+            type: "slider",
+            startValue: 0,
+            endValue: 4,
+            borderColor: "rgba(0, 0, 0, 0)",
+            zoomLock: true,
+            right: 0,
+          },
+        ],
+        grid: params.grid
+          ? params.grid
+          : {
+              left: 50,
+              right: 30,
+              top: 35,
+              bottom: 20,
+            },
+        tooltip: {
+          trigger: "item",
+          textStyle: {
+            color: "white",
+          },
+          backgroundColor: "rgba(50,50,50,0.5)",
+          borderColor: "rgba(0, 0, 0, 0)",
+        },
+        xAxis: {
+          type: "value",
+          name: params.xAxisName ? params.xAxisName : "",
+          nameLocation: "start",
+          nameTextStyle: {
+            // align: "left",
+            fontFamily: "Microsoft YaHei",
+            fontWeight: "normal",
+            fontSize: 10,
+            color: "rgba(64, 143, 255, 1)",
+            fontStyle: "normal",
+            textDecoration: "none",
+            padding: [-20, -5, 0, 0],
+          },
+          axisLabel: {
+            rotate: "0",
+            show: true,
+            fontFamily: "Microsoft YaHei",
+            lineHeight: 0,
+            fontWeight: "normal",
+            fontSize: 10,
+            color: "rgba(64, 143, 255, 1)",
+            fontStyle: "normal",
+            textDecoration: "none",
+            interval: 0,
+          },
+          axisLine: {
+            show: true,
+            lineStyle: {
+              type: "solid",
+              width: 1,
+              color: "rgba(64, 143, 255, 1)",
+            },
+          },
+          axisTick: {
+            show: false,
+          },
+          splitLine: {
+            show: false,
+          },
+          splitArea: {
+            show: false,
+          },
+          position: "top",
+          splitNumber: 3,
+        },
+        yAxis: {
+          type: "category",
+          name: "(万人)",
+          inverse: true,
+          data: nationalName,
+          nameLocation: "start",
+          // gridIndex: i,
+          nameTextStyle: {
+            fontFamily: "Microsoft YaHei",
+            fontWeight: "normal",
+            fontSize: 10,
+            color: "rgba(64, 143, 255, 1)",
+            fontStyle: "normal",
+            textDecoration: "none",
+            padding: [20, 20, 0, 0],
+          },
+          axisLine: {
+            show: true,
+            lineStyle: {
+              type: "solid",
+              width: 1,
+              color: "rgba(64, 143, 255, 1)",
+            },
+          },
+          axisLabel: {
+            rotate: "0",
+            show: true,
+            interval: 0,
+            fontFamily: "Microsoft YaHei",
+            fontWeight: "normal",
+            fontSize: 12,
+            color: "#FFF",
+            fontStyle: "normal",
+            textDecoration: "none",
+            width: 20,
+          },
+          axisTick: {
+            show: false,
+          },
+          splitLine: {
+            show: false,
+          },
+          splitArea: {
+            show: false,
+          },
+        },
+        series: [],
+        color: ["#605BFF", "#07B2EF"],
+      };
+      if (params.data.d2) {
+        option.series = [
+          {
+            type: "bar",
+            barWidth: 7,
+            data: params.data.d1,
+          },
+          {
+            type: "bar",
+            barWidth: 7,
+            data: params.data.d2,
+          },
+        ];
+      } else {
+        option.series = [
+          {
+            type: "bar",
+            barWidth: 8,
+            itemStyle: {
+              normal: {
+                color: new this.$echarts.graphic.LinearGradient(1, 0, 0, 0, [
+                  {
+                    offset: 0.6,
+                    color: "rgba(22, 228, 248, 1)",
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(49, 75, 204, 1)",
+                  },
+                ]),
+                barBorderRadius: [3, 3, 0, 0],
+              },
+            },
+            data: params.data.d1,
           },
         ];
       }
@@ -1000,7 +1949,7 @@ export default {
       top: 2%;
       // background: rgba(1, 84, 190, 0.12);
       .left-bottom-t {
-        margin-top: 1.67vh;
+        margin-top: 1.87vh;
         flex-basis: 100%;
         display: flex;
         justify-content: space-around;
@@ -1013,6 +1962,17 @@ export default {
         }
       }
       .left-bottom-b {
+        margin-top: 1.27vh;
+        display: flex;
+        // background-color: #fff;
+        .left-bottom-b-item {
+          margin-left: 0.98vw;
+          .left-bottom-b-item-echarts {
+            height: 13.56vh;
+            width: 26.98vw;
+            // border: #03f7fc 1px solid;
+          }
+        }
       }
     }
   }
@@ -1107,17 +2067,17 @@ export default {
           flex-basis: 100%;
           display: flex;
           justify-content: space-around;
-          height: 15.3vh;
+          height: 17.3vh;
         }
         .right-main-item-l {
           width: 13.02vw;
           height: 100%;
-          border: #ffc000 1px solid;
+          // border: #ffc000 1px solid;
         }
         .right-main-item-r {
           width: 13.02vw;
           margin-left: 2.08vw;
-          border: #ffc000 1px solid;
+          // border: #ffc000 1px solid;
         }
       }
     }
