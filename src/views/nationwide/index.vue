@@ -125,7 +125,10 @@
           </div>
         </div>
         <div class="center-bottom">
-          <dv-border-box-7 :color="['#0154be', '#03f7fc']"> </dv-border-box-7>
+          <!-- 地图 -->
+          <dv-border-box-7 :color="['#0154be', '#03f7fc']">
+            <div class="echart-canvas" ref="mapChart"></div>
+          </dv-border-box-7>
         </div>
       </div>
       <div class="right">
@@ -195,7 +198,7 @@
 
 <script>
 import { findCountryAPI } from "@/api/index";
-
+import china from "@/assets/map/china.json";
 export default {
   data() {
     return {
@@ -217,6 +220,11 @@ export default {
     },
     // 画图
     drawCharts(data) {
+      // 地图
+      this.initMapChart({
+        chartName: "mapChart",
+        data: data.basic,
+      });
       // 专业设置情况
       this.initBarAndLineChart({
         chartName: "professionConstruct",
@@ -380,9 +388,18 @@ export default {
         chartName: "employmentNum",
         title: "就业去向区域排名",
         xAxisName: "(万人)",
+        xAxisName1: "总就业人数",
+        xAxisName2: "本地区就业人数",
         data: {
           d1: data.totalEmployment,
           d2: data.employmentRegion,
+        },
+        grid: {
+          left: 50,
+          right: 30,
+          top: 50,
+          bottom: 0,
+          // height: "60%",
         },
       });
       // 实践基地设置
@@ -1710,8 +1727,8 @@ export default {
         );
         nationalValue.push(item.value);
       });
-      console.log(nationalName);
-      console.log(nationalValue);
+      // console.log(nationalName);
+      // console.log(nationalValue);
       let chart = this.$echarts.init(this.$refs[params.chartName]);
       const option = {
         title: {
@@ -1721,6 +1738,19 @@ export default {
             fontSize: 14,
           },
           left: "0%",
+        },
+        legend: {
+          show: true,
+          icon: "rect",
+          orient: "horizontal",
+          right: "0%",
+          itemWidth: 10,
+          itemHeight: 10,
+          top: "10%",
+          textStyle: {
+            fontSize: 11,
+            color: "#fff",
+          },
         },
         dataZoom: [
           {
@@ -1801,7 +1831,7 @@ export default {
         },
         yAxis: {
           type: "category",
-          name: "(万人)",
+          // name: "(万人)",
           inverse: true,
           data: nationalName,
           nameLocation: "start",
@@ -1853,11 +1883,14 @@ export default {
           {
             type: "bar",
             barWidth: 7,
+            name: params.xAxisName1 ? params.xAxisName1 : "",
             data: params.data.d1,
           },
           {
             type: "bar",
             barWidth: 7,
+            name: params.xAxisName2 ? params.xAxisName2 : "",
+
             data: params.data.d2,
           },
         ];
@@ -1885,6 +1918,172 @@ export default {
           },
         ];
       }
+      chart.setOption(option);
+    },
+    // 地图
+    initMapChart(params) {
+      let chart = this.$echarts.init(this.$refs[params.chartName]);
+      this.$echarts.registerMap("china", china);
+      let geoCoordMap = {};
+      let allData = [];
+      let scatterData = [];
+      // let tooltipData = [];
+      china["features"].forEach((e) => {
+        geoCoordMap[e.properties.name] = e.properties.cp;
+      });
+      var convertData = function (data) {
+        var res = [];
+        for (var i = 0; i < data.length; i++) {
+          var geoCoord = geoCoordMap[data[i].name];
+          if (geoCoord) {
+            res.push({
+              ...data[i],
+              value: geoCoord.concat(data[i].value),
+            });
+          }
+        }
+        return res;
+      };
+      params.data.map((item, index) => {
+        allData.push({
+          ...item,
+          name: item.name.replace(
+            /省|市|自治区|特别行政区|壮族自治区|维吾尔自治区|回族自治区/g,
+            ""
+          ),
+          value: item.gnum,
+        });
+        // tooltipData.push({
+        //   name: item.name.replace(
+        //     /省|市|自治区|特别行政区|壮族自治区|维吾尔自治区|回族自治区/g,
+        //     ""
+        //   ),
+        //   value: [
+        //     {
+        //       name: item.name.replace(
+        //         /省|市|自治区|特别行政区|壮族自治区|维吾尔自治区|回族自治区/g,
+        //         ""
+        //       ),
+        //       value: item.gnum,
+        //     },
+        //   ],
+        // });
+      });
+      scatterData = allData.slice(0, 8);
+      const option = {
+        tooltip: {
+          trigger: "item",
+          backgroundColor: "rgba(50,50,50,0.5)",
+          textStyle: {
+            color: "white",
+          },
+          formatter: function (params) {
+            // console.log(params);
+            const toolTiphtml = `${params.name}</br>
+              区域高职院校数量: <span style="color: #13F5FD;">${params.data.gnum}</span></br>
+              区域"双高"院校数量: <span style="color: #13F5FD;">${params.data.snum}</span></br>
+              区域生师比: <span style="color: #13F5FD;">${params.data.ssb} : 1</span></br>
+              区域生均图书量（册）: <span style="color: #13F5FD;">${params.data.tsl}</span></br>
+              区域生均设备总额（元）: <span style="color: #13F5FD;">${params.data.ze}</span></br>
+              区域生均建筑面积（㎡）: <span style="color: #13F5FD;">${params.data.mj}</span></br>
+              区域每百名学生计算机数（台）: <span style="color: #13F5FD;">${params.data.jsj}</span></br>
+              `;
+            return toolTiphtml;
+          },
+        },
+        // visualMap: {
+        //   show: false, // 隐藏筛选大小手柄
+        //   min: 0,
+        //   max: 2000,
+        //   left: "left",
+        //   top: "bottom",
+        //   text: ["高", "低"], // 文本，默认为数值文本
+        //   calculable: true,
+        //   seriesIndex: [1],
+        //   inRange: {
+        //     color: ["rgba(0,134,255,0)", "#0072d4"],
+        //   },
+        // },
+        geo: {
+          map: "china",
+          roam: false,
+          itemStyle: {
+            normal: {
+              areaColor: "rgba(0,134,255,0.0)",
+              borderColor: "#92e9f7",
+              shadowBlur: 20,
+              shadowColor: "rgba(147, 235, 248, .8)",
+            },
+            emphasis: {
+              areaColor: "#f9c242", //鼠标移入
+            },
+          },
+          label: {
+            normal: {
+              show: false,
+            },
+            emphasis: {
+              show: false,
+            },
+          },
+        },
+        series: [
+          {
+            type: "map",
+            geoIndex: 0,
+            data: allData,
+            aspectScale: 0.75, //长宽比
+            showLegendSymbol: true, // 存在legend时显示
+            itemStyle: {
+              normal: {
+                areaColor: "#031525",
+                borderColor: "#3B5077",
+              },
+              emphasis: {
+                areaColor: "#2B91B7",
+              },
+            },
+            label: {
+              normal: {
+                show: true,
+              },
+              emphasis: {
+                show: false,
+                textStyle: {
+                  color: "#fff",
+                },
+              },
+            },
+          },
+          {
+            name: "Top 10",
+            type: "effectScatter",
+            coordinateSystem: "geo",
+            symbolSize: 10,
+            showEffectOn: "render",
+            rippleEffect: {
+              brushType: "stroke",
+            },
+            hoverAnimation: true,
+            label: {
+              formatter: "{b}",
+              position: "right",
+              show: true,
+              color: "white",
+            },
+            itemStyle: {
+              normal: {
+                color: "#00ebf7",
+                shadowBlur: 6,
+                shadowColor: "#3eaff",
+              },
+            },
+            // zlevel: 3,
+            geoIndex: 0,
+            data: convertData(scatterData),
+          },
+        ],
+      };
       chart.setOption(option);
     },
   },
@@ -1979,11 +2178,11 @@ export default {
   .center {
     float: left;
     height: 100%;
-    width: 38%;
+    width: 40%;
     padding: 0 20px;
     // background-color: rgb(194, 60, 60);
     .center-top {
-      width: 36.5vw;
+      width: 38.5vw;
       height: 22.56vh;
       padding: 0 0.78vw;
       box-sizing: border-box;
@@ -2028,7 +2227,7 @@ export default {
     .center-bottom {
       position: relative;
       top: 3%;
-      width: 36.88vw;
+      width: 37.88vw;
       height: 64.07vh;
     }
   }
@@ -2054,7 +2253,7 @@ export default {
         }
         .right-top-main-c {
           padding: 0 0.94vw;
-          margin-top: 2.63vh;
+          margin-top: 1.63vh;
           flex-basis: 100%;
           display: flex;
           justify-content: space-around;
@@ -2063,11 +2262,11 @@ export default {
         .right-top-main-b {
           // border: #ffc000 1px solid;
           padding: 0 0.94vw;
-          margin-top: 1.94vh;
+          margin-top: 0.94vh;
           flex-basis: 100%;
           display: flex;
           justify-content: space-around;
-          height: 17.3vh;
+          height: 18.3vh;
         }
         .right-main-item-l {
           width: 13.02vw;
